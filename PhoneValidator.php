@@ -9,19 +9,54 @@
 namespace ignatenkovnikita\validators;
 
 
+use Yii;
 use yii\validators\Validator;
 
 class PhoneValidator extends Validator
 {
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+        if ($this->message === null) {
+            $this->message = \Yii::t('common', '{attribute} is not a valid Phone. Must be 7XXXZZYYYY.');
+        }
+    }
+
     public function validateAttribute($model, $attribute)
     {
-        $model->$attribute = preg_replace('/[^0-9]/','', $model->$attribute);
+        $value = $model->$attribute;
 
-        if (!preg_match('/^\d{11}$/', $model->$attribute)) {
-            $this->addError($model, $attribute, 'Telephone is not valid');
+
+        $result = $this->validateValue($value);
+
+        if (is_array($result)) {
+            $this->addError($model, $attribute, $this->message);
         } else {
-            $model->$attribute = substr_replace($model->$attribute, '7', 0, 1);
+            $model->$attribute = $result;
         }
+    }
+
+    public function validateValue($value)
+    {
+        $value = preg_replace('/[^0-9]/', '', $value);
+        if (strlen($value) == 11 && substr($value, 0, 1) == 8) {
+            substr_replace($value, '7', 0, 1);
+        }
+
+        if(strlen($value) == 10) {
+            $value = '7' . $value;
+        }
+
+        if (preg_match('/^7\d{10}$/', $value)) {
+            return $value;
+        }
+
+        return [];
+
+
     }
 
 }
