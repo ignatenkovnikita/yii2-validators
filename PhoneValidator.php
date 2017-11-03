@@ -43,7 +43,7 @@ class PhoneValidator extends Validator
     {
         $value = preg_replace('/[^0-9]/', '', $value);
         if (strlen($value) == 11 && substr($value, 0, 1) == 8) {
-            substr_replace($value, '7', 0, 1);
+            $value = substr_replace($value, '7', 0, 1);
         }
 
         if(strlen($value) == 10) {
